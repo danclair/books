@@ -3,5 +3,7 @@ const searchTerm = 'pizza';
 const url = `https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&fields=items(volumeInfo(title,authors,publisher))&maxResults=1&key=AIzaSyBgc639eGVx__EC6uT1lVAkKKkghGQrJU4`;
 
 axios.get(url).then((resp) => {
-	console.log(resp.data.items);
+	console.log('** Search results: **');
+	let searchResults = resp.data.items;
+	console.log(searchResults);
 });
