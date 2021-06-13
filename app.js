@@ -8,8 +8,12 @@ let readingList = [];
 axios.get(url).then((resp) => {
 	console.log('** Search results: **');
 	let searchResults = resp.data.items;
-
-	console.log('Title: ' + searchResults[0].volumeInfo.title);
-	console.log('Author: ' + searchResults[0].volumeInfo.authors[0]);
-	console.log('Publisher: ' + searchResults[0].volumeInfo.publisher);
+	for (let i = 0; i < searchResults.length; i++) {
+		console.log(`Item ${i + 1}`);
+		console.log('Title: ' + searchResults[i].volumeInfo.title);
+		for (let a = 0; a < searchResults[i].volumeInfo.authors.length; a++) {
+			console.log('Author: ' + searchResults[i].volumeInfo.authors[a]);
+		}
+		console.log('Publisher: ' + searchResults[i].volumeInfo.publisher);
+	}
 });
