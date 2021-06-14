@@ -16,13 +16,18 @@ const boxenOptions = {
 let readingList = []; // empty array to store Reading List
 
 // function to present user with Menu options
-function menuOptions(menuChoice) {
+function menuDisplay() {
 	console.log(boxen(chalk.white.bold('\n     Menu Options:     \n'), boxenOptions));
 	console.log(chalk.white.bold('\n[1] - Search for a book'));
 	console.log(chalk.white.bold('[2] - View your Reading List'));
-	console.log(chalk.white.bold('[3] - Exit\n'));
-	console.log('------------------------------');
+	console.log(chalk.white.bold('[3] - Exit'));
+	console.log('------------------------------\n');
+	menuOptions();
+	// }
+}
 
+// function to make choice from Menu options
+function menuOptions(menuChoice) {
 	menuChoice = parseInt(prompt('Choose by typing 1, 2, or 3: '));
 	// menuChoice = parseInt(menuChoice);
 
@@ -44,7 +49,6 @@ function menuOptions(menuChoice) {
 		menuChoice = prompt('Please type only 1, 2, or 3: ');
 		menuOptions(menuChoice);
 	}
-	// }
 }
 
 // function to search Google Books API
@@ -78,8 +82,8 @@ function webSearch(searchTerm) {
 				}
 			}
 			console.log('Publisher: ' + searchResults[i].volumeInfo.publisher);
-			console.log(chalk.cyan.bold('------------------------------'));
-			console.log('\n');
+			console.log(chalk.yellow.bold('------------------------------'));
+			// console.log('\n');
 		}
 
 		// loop to determine if user wants to add a book to the reading list
@@ -100,12 +104,13 @@ function webSearch(searchTerm) {
 		// console.log(userInput);
 
 		// prompting user to add book to reading list
+		console.log('\n');
 		let addToList = parseInt(prompt('Choose a book to add to reading list (1-5): '));
 
 		if (addToList == 1 || addToList == 2 || addToList == 3 || addToList == 4 || addToList == 5) {
 			readingList.push(searchResults[addToList - 1].volumeInfo);
 			console.log('\nYou added: ' + searchResults[addToList - 1].volumeInfo.title + ' to your Reading List!');
-			menuOptions();
+			menuDisplay();
 		} else {
 			while (
 				// parseInt(userInput) !== 1 ||
@@ -165,14 +170,25 @@ function displayReadingList() {
 		}
 	}
 
-	menuOptions();
+	returnToMenu();
 	// console.log(readingList);
 }
 
-function returnToMenu() {}
+function returnToMenu(returnChoice) {
+	returnChoice = prompt('Would you like to return to the main menu (y/n)? ');
+	if (returnChoice.toLowerCase() == 'y') {
+		menuDisplay();
+	} else if (returnChoice.toLowerCase() == 'n') {
+		console.log(chalk.yellow.bold('\nThanks and have a nice day!\n'));
+		return;
+	} else {
+		console.log(chalk.red.bold('ERROR'));
+		returnToMenu();
+	}
+}
 
 console.log(chalk.green.bold('\nWelcome to Books!'));
-menuOptions();
+menuDisplay();
 // webSearch();
 // console.log('this is your hella cool reading list');
 // displayReadingList();
