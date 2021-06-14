@@ -1,5 +1,5 @@
 const axios = require('axios'); // module to enable web requests
-const prompt = require('prompt-sync')(); // module to prompt for user input
+const prompt = require('prompt-sync')({ sigint: true }); // module to prompt for user input, also allowing exit with ctrl-C
 const dotenv = require('dotenv'); // module to process environment variables
 dotenv.config(); // execute config file to set env variables
 const chalk = require('chalk'); // module to modify text and background color
@@ -16,48 +16,59 @@ const boxenOptions = {
 let readingList = []; // empty array to store Reading List
 
 // function to present user with Menu options
-function menuOptions() {
-	console.log(boxen(chalk.white.bold('\n     Options:     \n'), boxenOptions));
+function menuOptions(menuChoice) {
+	console.log(boxen(chalk.white.bold('\n     Menu Options:     \n'), boxenOptions));
 	console.log(chalk.white.bold('\n[1] - Search for a book'));
 	console.log(chalk.white.bold('[2] - View your Reading List'));
 	console.log(chalk.white.bold('[3] - Exit\n'));
 	console.log('------------------------------');
 
-	let menuChoice = prompt('Choose by typing 1, 2, or 3: ');
-	menuChoice = parseInt(menuChoice);
+	menuChoice = parseInt(prompt('Choose by typing 1, 2, or 3: '));
+	// menuChoice = parseInt(menuChoice);
 
+	// while (menuChoice != 1 && menuChoice != 2 && menuChoice != 3) {
+	// 	menuChoice = parseInt(prompt('Please try again. Only type 1, 2, or 3: '));
+	// menuChoice = parseInt(menuChoice);
 	if (menuChoice == 1) {
 		webSearch();
 	} else if (menuChoice == 2) {
-		if (readingList.length === 0) {
-			console.log('\n*** Your reading list is empty! ***');
-			menuOptions();
-		} else {
-			displayReadingList();
-			menuOptions();
-		}
+		// } else {
+		displayReadingList();
+
+		// }
 	} else if (menuChoice == 3) {
 		console.log(chalk.yellow.bold('\nThanks and have a nice day!\n'));
 		return;
 	} else {
-		menuChoice = prompt('Please only type 1, 2, or 3');
+		console.log(chalk.red.bold('ERROR'));
+		menuChoice = prompt('Please type only 1, 2, or 3: ');
+		menuOptions(menuChoice);
 	}
+	// }
 }
 
 // function to search Google Books API
-function webSearch() {
+function webSearch(searchTerm) {
 	console.log('\n');
-	let searchTerm = prompt('Enter a term to search for a book: '); // user is prompted for search term
+	searchTerm = prompt('Enter a term to search for a book: '); // user is prompted for search term
 	const url = `https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&fields=items(volumeInfo(title,authors,publisher))&maxResults=5&key=${process
 		.env.BOOKS_API_KEY}`; // create url variable to insert user search term into Google Books API request
 	axios.get(url).then((resp) => {
-		console.log('** Search results: **');
+		console.log(
+			boxen(chalk.green.bold('** Search results: **'), {
+				borderColor : 'green'
+			})
+		);
 		let searchResults = resp.data.items;
 		// console.log(searchResults);
 
 		// loop over searchResults to print in more readable format
 		for (let i = 0; i < searchResults.length; i++) {
-			console.log(`Item ${i + 1}`);
+			console.log(
+				boxen(`Item ${i + 1}`, {
+					borderColor : 'cyan'
+				})
+			);
 			console.log('Title: ' + searchResults[i].volumeInfo.title);
 			if (searchResults[i].volumeInfo.authors == undefined) {
 				console.log('Author: ' + searchResults[i].volumeInfo.authors);
@@ -67,6 +78,7 @@ function webSearch() {
 				}
 			}
 			console.log('Publisher: ' + searchResults[i].volumeInfo.publisher);
+			console.log(chalk.cyan.bold('------------------------------'));
 			console.log('\n');
 		}
 
@@ -88,59 +100,76 @@ function webSearch() {
 		// console.log(userInput);
 
 		// prompting user to add book to reading list
-		let userInput = prompt('Choose a book to add to reading list (1-5): ');
-		userInput = parseInt(userInput);
+		let addToList = parseInt(prompt('Choose a book to add to reading list (1-5): '));
 
-		while (
-			// parseInt(userInput) !== 1 ||
-			// parseInt(userInput) !== 2 ||
-			// parseInt(userInput) !== 3 ||
-			// parseInt(userInput) !== 4 ||
-			// parseInt(userInput) !== 5
-			userInput !== 1 &&
-			userInput !== 2 &&
-			userInput !== 3 &&
-			userInput !== 4 &&
-			userInput !== 5
-		) {
-			let userInput = prompt('Your choice must be 1-5: ');
-			userInput = parseInt(userInput);
-			// console.log('inside loop ' + typeof userInput);
-			// userInput;
+		if (addToList == 1 || addToList == 2 || addToList == 3 || addToList == 4 || addToList == 5) {
+			readingList.push(searchResults[addToList - 1].volumeInfo);
+			console.log('\nYou added: ' + searchResults[addToList - 1].volumeInfo.title + ' to your Reading List!');
+			menuOptions();
+		} else {
+			while (
+				// parseInt(userInput) !== 1 ||
+				// parseInt(userInput) !== 2 ||
+				// parseInt(userInput) !== 3 ||
+				// parseInt(userInput) !== 4 ||
+				// parseInt(userInput) !== 5
+				addToList != 1 ||
+				addToList != 2 ||
+				addToList != 3 ||
+				addToList != 4 ||
+				addToList != 5
+			) {
+				addToList = parseInt(prompt('Your choice must be 1-5: '));
+			}
 		}
-
-		console.log(
-			'\nYou added: ' + searchResults[parseInt(userInput) - 1].volumeInfo.title + ' to your Reading List!'
-		);
-
-		readingList.push(searchResults[parseInt(userInput) - 1].volumeInfo);
-		menuOptions();
-		// console.log('** Reading List **\n');
-		// console.log(readingList);
 	});
 }
 
+// function to display user's reading list
 function displayReadingList() {
-	console.log('\nYour Reading List:\n');
-	for (let i = 0; i < readingList.length; i++) {
-		console.log(`Item ${i + 1}`);
-		console.log('Title: ' + readingList[i].title);
-		if (readingList[i].authors == undefined) {
-			console.log('Author: ' + readingList[i].authors);
-		} else {
-			for (let a = 0; a < readingList[i].authors.length; a++) {
-				console.log('Author: ' + readingList[i].authors[a]);
-			}
-		}
-		// for (let a = 0; a < readingList[i].authors.length; a++) {
-		// 	console.log('Author: ' + readingList[i].authors[a]);
-		// }
-		console.log('Publisher: ' + readingList[i].publisher);
+	if (readingList.length === 0) {
+		console.log(
+			boxen(chalk.red.bold('*** Your reading list is empty! ***'), {
+				borderColor : 'red',
+				padding     : 1
+			})
+		);
 		console.log('\n');
+	} else {
+		console.log(
+			boxen(chalk.green.bold('*** Your Reading List ***'), {
+				borderColor : 'white',
+				padding     : 1
+			})
+		);
+		for (let i = 0; i < readingList.length; i++) {
+			console.log(
+				boxen(`Item ${i + 1}`, {
+					borderColor : 'cyan'
+				})
+			);
+			console.log('Title: ' + readingList[i].title);
+			if (readingList[i].authors == undefined) {
+				console.log('Author: ' + readingList[i].authors);
+			} else {
+				for (let a = 0; a < readingList[i].authors.length; a++) {
+					console.log('Author: ' + readingList[i].authors[a]);
+				}
+			}
+			// for (let a = 0; a < readingList[i].authors.length; a++) {
+			// 	console.log('Author: ' + readingList[i].authors[a]);
+			// }
+			console.log('Publisher: ' + readingList[i].publisher);
+			console.log(chalk.cyan.bold('------------------------------'));
+			console.log('\n');
+		}
 	}
+
 	menuOptions();
 	// console.log(readingList);
 }
+
+function returnToMenu() {}
 
 console.log(chalk.green.bold('\nWelcome to Books!'));
 menuOptions();
