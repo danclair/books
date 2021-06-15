@@ -29,26 +29,42 @@ function menuDisplay() {
 // function to make choice from Menu options
 function menuOptions(menuChoice) {
 	menuChoice = parseInt(prompt('Choose by typing 1, 2, or 3: '));
-	// menuChoice = parseInt(menuChoice);
 
-	// while (menuChoice != 1 && menuChoice != 2 && menuChoice != 3) {
-	// 	menuChoice = parseInt(prompt('Please try again. Only type 1, 2, or 3: '));
-	// menuChoice = parseInt(menuChoice);
-	if (menuChoice == 1) {
-		webSearch();
-	} else if (menuChoice == 2) {
-		// } else {
-		displayReadingList();
+	while (true) {
+		if (menuChoice == 1) {
+			webSearch();
+			break;
+		} else if (menuChoice == 2) {
+			// } else {
+			displayReadingList();
+			break;
 
-		// }
-	} else if (menuChoice == 3) {
-		console.log(chalk.yellow.bold('\nThanks and have a nice day!\n'));
-		return;
-	} else {
-		console.log(chalk.red.bold('ERROR'));
-		menuChoice = prompt('Please type only 1, 2, or 3: ');
-		menuOptions(menuChoice);
+			// }
+		} else if (menuChoice == 3) {
+			console.log(chalk.yellow.bold('\nThanks and have a nice day!\n'));
+			return;
+		} else {
+			console.log(chalk.red.bold('ERROR'));
+			console.log(chalk.red.bold('Please type only 1, 2, or 3'));
+			menuOptions();
+			break;
+		}
 	}
+	// if (menuChoice == 1) {
+	// 	webSearch();
+	// } else if (menuChoice == 2) {
+	// 	// } else {
+	// 	displayReadingList();
+
+	// 	// }
+	// } else if (menuChoice == 3) {
+	// 	console.log(chalk.yellow.bold('\nThanks and have a nice day!\n'));
+	// 	return;
+	// } else {
+	// 	console.log(chalk.red.bold('ERROR'));
+	// 	menuChoice = prompt('Please type only 1, 2, or 3: ');
+	// 	menuOptions(menuChoice);
+	// }
 }
 
 // function to search Google Books API
@@ -64,7 +80,6 @@ function webSearch(searchTerm) {
 			})
 		);
 		let searchResults = resp.data.items;
-		// console.log(searchResults);
 
 		// loop over searchResults to print in more readable format
 		for (let i = 0; i < searchResults.length; i++) {
@@ -104,33 +119,40 @@ function webSearch(searchTerm) {
 		// console.log(userInput);
 
 		// prompting user to add book to reading list
-		console.log('\n');
-		let addToList = parseInt(prompt('Choose a book to add to reading list (1-5): '));
-
-		if (addToList == 1 || addToList == 2 || addToList == 3 || addToList == 4 || addToList == 5) {
-			readingList.push(searchResults[addToList - 1].volumeInfo);
-			console.log('\nYou added: ' + searchResults[addToList - 1].volumeInfo.title + ' to your Reading List!');
-			menuDisplay();
-		} else {
-			while (
-				// parseInt(userInput) !== 1 ||
-				// parseInt(userInput) !== 2 ||
-				// parseInt(userInput) !== 3 ||
-				// parseInt(userInput) !== 4 ||
-				// parseInt(userInput) !== 5
-				addToList != 1 ||
-				addToList != 2 ||
-				addToList != 3 ||
-				addToList != 4 ||
-				addToList != 5
-			) {
-				addToList = parseInt(prompt('Your choice must be 1-5: '));
-			}
-		}
+		listAddQuestion();
+		// listAddQuestion = prompt('Would you like to add one of these to your Reading List (y/n)? ');
+		// if (listAddQuestion.toLowerCase() == 'y') {
+		// 	addToList();
+		// } else if (listAddQuestion.toLowerCase() == 'n') {
+		// 	returnToMenu();
+		// 	// console.log(chalk.yellow.bold('\nThanks and have a nice day!\n'));
+		// 	// return;
+		// } else {
+		// 	console.log(chalk.red.bold('ERROR'));
+		// 	menuOptions();
+		// }
 	});
 }
 
-// function to display user's reading list
+// function to add book to Reading List
+function addToList(listChoice) {
+	console.log('\n');
+	listChoice = parseInt(prompt('Choose a book to add to reading list (1-5): '));
+	while (true) {
+		if (listChoice == 1 || listChoice == 2 || listChoice == 3 || listChoice == 4 || listChoice == 5) {
+			readingList.push(searchResults[listChoice - 1].volumeInfo);
+			console.log('\nYou added: ' + searchResults[listChoice - 1].volumeInfo.title + ' to your Reading List!');
+			menuDisplay();
+		} else {
+			console.log(chalk.red.bold('ERROR'));
+			console.log(chalk.red.bold('Your choice must be 1-5'));
+			addToList();
+			break;
+		}
+	}
+}
+
+// function to display user's Reading List
 function displayReadingList() {
 	if (readingList.length === 0) {
 		console.log(
@@ -186,7 +208,20 @@ function returnToMenu(returnChoice) {
 		returnToMenu();
 	}
 }
-
+function listAddQuestion(listAddQuestionChoice) {
+	listAddQuestionChoice = prompt('Would you like to add one of these to your Reading List (y/n)? ');
+	if (listAddQuestionChoice.toLowerCase() == 'y') {
+		addToList();
+	} else if (listAddQuestionChoice.toLowerCase() == 'n') {
+		returnToMenu();
+		// console.log(chalk.yellow.bold('\nThanks and have a nice day!\n'));
+		// return;
+	} else {
+		console.log(chalk.red.bold('ERROR'));
+		console.log(chalk.red.bold('Please enter y or n'));
+		listAddQuestion();
+	}
+}
 console.log(chalk.green.bold('\nWelcome to Books!'));
 menuDisplay();
 // webSearch();
