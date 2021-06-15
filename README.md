@@ -17,4 +17,21 @@ npm install axios boxen chalk dotenv prompt-sync
 ```
 
 <h3>API Key<h3>
-<p>
+<p>Obtain a Google Books API Key. You can find out how to do this <a href='https://developers.google.com/books/docs/v1/using#APIKey'>here</a>.</p>
+<p>Once you have your API Key, create a .env file in your main directory.</p>
+<p>In the .env file, type:</p>
+```
+BOOKS_API_KEY=
+```
+<p>...followed by your recently acquired API key. This will allow the Books app to make requests to the Google Books API.</p>
+
+
+<h3>Running the app</h3>
+<p>Open your terminal to the books directory, and type:</p>
+```
+node app.js
+```
+
+<p>Follow the onscreen instructions, and enjoy the Books app!</p>
+
+
