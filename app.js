@@ -46,6 +46,80 @@ function menuOptions(menuChoice) {
 		}
 	}
 }
+// function to search Google Books API
+function webSearch(searchTerm) {
+	console.log('\n');
+	searchTerm = prompt('Enter a term to search for a book: '); // user is prompted for search term
+	const url = `https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&fields=items(volumeInfo(title,authors,publisher))&maxResults=5&key=${process
+		.env.BOOKS_API_KEY}`; // create url variable to insert user search term into Google Books API request
+	displaySearch(url);
+}
+function displaySearchList(searchResults) {
+	// loop over searchResults to print in more readable format
+	for (let i = 0; i < searchResults.length; i++) {
+		console.log(
+			boxen(`Item ${i + 1}`, {
+				borderColor : 'cyan'
+			})
+		);
+		console.log('Title: ' + searchResults[i].volumeInfo.title);
+		if (searchResults[i].volumeInfo.authors == undefined) {
+			console.log('Author: ' + searchResults[i].volumeInfo.authors);
+		} else {
+			for (let a = 0; a < searchResults[i].volumeInfo.authors.length; a++) {
+				console.log('Author: ' + searchResults[i].volumeInfo.authors[a]);
+			}
+		}
+		console.log('Publisher: ' + searchResults[i].volumeInfo.publisher);
+		console.log(chalk.yellow.bold('------------------------------'));
+	}
+}
+function addToReadingList(searchResults) {
+	console.log('\n');
+	listChoice = prompt('Choose a book to add to reading list (1-5), or type m to return to Menu Options: ');
+	while (true) {
+		// checks listChoice for validity
+		if (
+			parseInt(listChoice) == 1 ||
+			parseInt(listChoice) == 2 ||
+			parseInt(listChoice) == 3 ||
+			parseInt(listChoice) == 4 ||
+			parseInt(listChoice) == 5
+		) {
+			readingList.push(searchResults[listChoice - 1].volumeInfo);
+			console.log(
+				boxen(
+					chalk.bold(
+						'You added: ' + searchResults[listChoice - 1].volumeInfo.title + ' to your Reading List!'
+					),
+					{
+						padding     : 1,
+						borderColor : 'cyan',
+						borderStyle : 'double'
+					}
+				)
+			);
+			menuDisplay();
+			break;
+		} else if (listChoice === 'm') {
+			menuDisplay();
+			break;
+		} else {
+			console.log(
+				boxen(chalk.red.bold('   *** ERROR ***   '), {
+					borderColor : 'red'
+				})
+			);
+			console.log(
+				boxen(chalk.red.bold('Your choice must be 1-5'), {
+					borderColor : 'red'
+				})
+			);
+			displaySearch(url);
+			break;
+		}
+	}
+}
 // function to display book search interface
 function displaySearch(url) {
 	axios.get(url).then((resp) => {
@@ -56,80 +130,75 @@ function displaySearch(url) {
 		);
 		let searchResults = resp.data.items;
 
+		displaySearchList(searchResults);
 		// loop over searchResults to print in more readable format
-		for (let i = 0; i < searchResults.length; i++) {
-			console.log(
-				boxen(`Item ${i + 1}`, {
-					borderColor : 'cyan'
-				})
-			);
-			console.log('Title: ' + searchResults[i].volumeInfo.title);
-			if (searchResults[i].volumeInfo.authors == undefined) {
-				console.log('Author: ' + searchResults[i].volumeInfo.authors);
-			} else {
-				for (let a = 0; a < searchResults[i].volumeInfo.authors.length; a++) {
-					console.log('Author: ' + searchResults[i].volumeInfo.authors[a]);
-				}
-			}
-			console.log('Publisher: ' + searchResults[i].volumeInfo.publisher);
-			console.log(chalk.yellow.bold('------------------------------'));
-		}
+		// for (let i = 0; i < searchResults.length; i++) {
+		// 	console.log(
+		// 		boxen(`Item ${i + 1}`, {
+		// 			borderColor : 'cyan'
+		// 		})
+		// 	);
+		// 	console.log('Title: ' + searchResults[i].volumeInfo.title);
+		// 	if (searchResults[i].volumeInfo.authors == undefined) {
+		// 		console.log('Author: ' + searchResults[i].volumeInfo.authors);
+		// 	} else {
+		// 		for (let a = 0; a < searchResults[i].volumeInfo.authors.length; a++) {
+		// 			console.log('Author: ' + searchResults[i].volumeInfo.authors[a]);
+		// 		}
+		// 	}
+		// 	console.log('Publisher: ' + searchResults[i].volumeInfo.publisher);
+		// 	console.log(chalk.yellow.bold('------------------------------'));
+		// }
 
+		addToReadingList(searchResults);
 		// prompting user to add book to reading list
-		console.log('\n');
-		listChoice = prompt('Choose a book to add to reading list (1-5), or type m to return to Menu Options: ');
-		while (true) {
-			// checks listChoice for validity
-			if (
-				parseInt(listChoice) == 1 ||
-				parseInt(listChoice) == 2 ||
-				parseInt(listChoice) == 3 ||
-				parseInt(listChoice) == 4 ||
-				parseInt(listChoice) == 5
-			) {
-				readingList.push(searchResults[listChoice - 1].volumeInfo);
-				console.log(
-					boxen(
-						chalk.bold(
-							'You added: ' + searchResults[listChoice - 1].volumeInfo.title + ' to your Reading List!'
-						),
-						{
-							padding     : 1,
-							borderColor : 'cyan',
-							borderStyle : 'double'
-						}
-					)
-				);
-				menuDisplay();
-				break;
-			} else if (listChoice === 'm') {
-				menuDisplay();
-				break;
-			} else {
-				console.log(
-					boxen(chalk.red.bold('   *** ERROR ***   '), {
-						borderColor : 'red'
-					})
-				);
-				console.log(
-					boxen(chalk.red.bold('Your choice must be 1-5'), {
-						borderColor : 'red'
-					})
-				);
-				displaySearch(url);
-				break;
-			}
-		}
+		// console.log('\n');
+		// listChoice = prompt('Choose a book to add to reading list (1-5), or type m to return to Menu Options: ');
+		// while (true) {
+		// 	// checks listChoice for validity
+		// 	if (
+		// 		parseInt(listChoice) == 1 ||
+		// 		parseInt(listChoice) == 2 ||
+		// 		parseInt(listChoice) == 3 ||
+		// 		parseInt(listChoice) == 4 ||
+		// 		parseInt(listChoice) == 5
+		// 	) {
+		// 		readingList.push(searchResults[listChoice - 1].volumeInfo);
+		// 		console.log(
+		// 			boxen(
+		// 				chalk.bold(
+		// 					'You added: ' + searchResults[listChoice - 1].volumeInfo.title + ' to your Reading List!'
+		// 				),
+		// 				{
+		// 					padding     : 1,
+		// 					borderColor : 'cyan',
+		// 					borderStyle : 'double'
+		// 				}
+		// 			)
+		// 		);
+		// 		menuDisplay();
+		// 		break;
+		// 	} else if (listChoice === 'm') {
+		// 		menuDisplay();
+		// 		break;
+		// 	} else {
+		// 		console.log(
+		// 			boxen(chalk.red.bold('   *** ERROR ***   '), {
+		// 				borderColor : 'red'
+		// 			})
+		// 		);
+		// 		console.log(
+		// 			boxen(chalk.red.bold('Your choice must be 1-5'), {
+		// 				borderColor : 'red'
+		// 			})
+		// 		);
+		// 		displaySearch(url);
+		// 		break;
+		// 	}
+		// }
 	});
 }
-// function to search Google Books API
-function webSearch(searchTerm) {
-	console.log('\n');
-	searchTerm = prompt('Enter a term to search for a book: '); // user is prompted for search term
-	const url = `https://www.googleapis.com/books/v1/volumes?q=${searchTerm}&fields=items(volumeInfo(title,authors,publisher))&maxResults=5&key=${process
-		.env.BOOKS_API_KEY}`; // create url variable to insert user search term into Google Books API request
-	displaySearch(url);
-}
+
 // function to display the Reading List
 function displayReadingList() {
 	if (readingList.length === 0) {
