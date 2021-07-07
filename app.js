@@ -80,7 +80,7 @@ function displaySearch(url) {
 			console.log(
 				boxen(
 					chalk.red.bold(
-						'Something went wrong! Be sure you enter a valid search term, and that you have a valid API key.'
+						' Something went wrong! Be sure you enter a valid search term, and that you have a valid API key. '
 					),
 					{
 						borderColor : 'red'
